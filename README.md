@@ -14,7 +14,7 @@ Follow the tutorial below to learn how it was created, and how you can publish a
 * [Create a chart](#create-a-chart)
 * [Template the data into text](#template-the-data-into-text)
 * [Once more, with feeling](#once-more-with-feeling)
-* [Deploying with GitHub Pages](#deploying-with-github-pages)
+* [Deploy with GitHub Pages](#deploy-with-github-pages)
 
 ## Requirements
 
@@ -30,7 +30,7 @@ The first step is to open your terminal and use Node.JS to create a new project 
 npx @observablehq/framework@latest create
 ```
 
-You will be prompted to answer a few questions about your project. Here's how I approached it. The key thing I'd recommend is that you choose to start with an empty project. Otherwise you'll have to delete a lot of example files.
+You will be prompted to answer a few questions about your project. Here's how I approached it. The key thing I'd recommend is that you choose to start with an empty project. Otherwise you'll have to delete a lot of example files. You'll also want to make a git repostitory.
 
 ```bash
 ◇  Where should we create your project?
@@ -63,7 +63,7 @@ We're going to use Python to load the data we need for our dashboard. We'll use 
 pipenv install pandas cpi
 ```
 
-Now you have all the dependencies you need. In your terminal start up the Observable test serve inside the Python environment.
+Now you have all the dependencies you need. In your terminal start up the Observable test server inside the Python environment.
 
 ```bash
 pipenv run npm run dev
@@ -109,6 +109,7 @@ Now open up the `src/index.md` that lays out your page. Clear out everything the
 ``````md
 ```js
 const monthToMonth = await FileAttachment("month-to-month.json").json({typed: true}).then(data => {
+  // Loop through the data and return a polished up, trimmed down version
   return data.map(d => {
     return {
       month: new Date(d.date),
@@ -119,7 +120,7 @@ const monthToMonth = await FileAttachment("month-to-month.json").json({typed: tr
 ```
 ``````
 
-Use [Observable Plot](https://observablehq.com/plot/) to add a simple bar chart that roughly matches what the BLS puts out. If your test serve is running, it should appear on the page soon after you save.
+Use [Observable Plot](https://observablehq.com/plot/) to add a simple bar chart that roughly matches what the BLS puts out. If your test server is running, it should appear on the page soon after you save.
 
 ``````md
 ```js
@@ -137,7 +138,7 @@ Plot.plot({
   y: {label: "Percent Change", tickFormat: d => `${d}%`}
 })
 ```
-````
+``````
 
 ## Template the data into text
 
@@ -303,7 +304,7 @@ Over the last 12 months, the all items index ${describe(latestAllItems.change)} 
 
 Boom. You've got a dashboard that's ready to deploy.
 
-## Deploying with GitHub Pages
+## Deploy with GitHub Pages
 
 Create a [GitHub Actions](https://docs.github.com/en/actions/about-github-actions/understanding-github-actions) workflow file in `.github/workflows/deploy.yaml`. Start by adding a step to build the project once a day:
 
