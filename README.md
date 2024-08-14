@@ -213,3 +213,69 @@ const latestCore = yearOverYear.filter(d => d.series_items_name === "All items l
 ```js
 Over the last 12 months, the all items index ${describe(latestAllItems.change)} before seasonal adjustment. The index for all items less food and energy ${describe(latestCore.change)}.
 ```
+
+Create a GitHub Actions workflow file in `.github/workflows/deploy.yaml`:
+
+```yaml
+name: "Build and Deploy"
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '* * * * *'
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - id: checkout
+        name: Checkout
+        uses: actions/checkout@v4
+
+      - id: setup-python
+        name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pipenv'
+
+      - id: install-pipenv
+        name: Install pipenv
+        run: curl https://raw.githubusercontent.com/pypa/pipenv/master/get-pipenv.py | python
+        shell: bash
+
+      - id: install-python-dependencies
+        name: Install Python dependencies
+        run: pipenv sync --dev
+        shell: bash
+
+      - id: setup-node
+        name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20.11.0"
+          cache: "npm"
+          cache-dependency-path: package-lock.json
+
+      - id: install-nodejs-dependencies
+        name: Install Node.JS dependencies
+        run: npm install --dev
+        shell: bash
+
+      - id: build
+        name: Build
+        run: pipenv run npm run build
+        shell: bash
+
+      - id: upload-release-candidate
+        name: Upload release candidate
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-candidate
+          path: ./dist
+```
+
+Visit your repository's settings page. Click on the "Pages" tab. Select "GitHub Actions" from the Build and Deployment section's source dropdown.
+
+
