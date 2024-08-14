@@ -2,13 +2,25 @@
 
 A demonstration of how to deploy an [Observable Framework](https://observablehq.com/framework) dashboard via [GitHub Pages](https://pages.github.com/).
 
-It recreates the main elements of the [latest press release](https://www.bls.gov/news.release/pdf/cpi.pdf) of Consumer Price Index data issued by the U.S. Bureau of Labor Statistics.
+It recreates the main elements of the [latest press release](https://www.bls.gov/news.release/pdf/cpi.pdf) of Consumer Price Index data issued by the U.S. Bureau of Labor Statistics. You can see the published page at [palewire.github.io/observable-framework-cpi-example/](https://palewire.github.io/observable-framework-cpi-example/).
 
 Follow the tutorial below to learn how it was created, and how you can publish a dashboard of your own.
+
+## Requirements
+
+* [Node.js](https://nodejs.org/en/)
+* [Python](https://www.python.org/)
+* [Pipenv](https://pipenv.pypa.io/en/latest/)
+
+## Create a new project
+
+The first step is to open your terminal and use Node.JS to create a new project with the Observable Framework's `create` command.
 
 ```bash
 npx @observablehq/framework@latest create
 ```
+
+You will be prompted to answer a few questions about your project. Here's how I approached it. The key thing I'd recommend is that you choose to start with an empty project. Otherwise you'll have to delete a lot of example files.
 
 ```bash
 ◇  Where should we create your project?
@@ -27,46 +39,63 @@ npx @observablehq/framework@latest create
 │  Yes
 ```
 
+Navigate into the project directory that was created:
+
 ```bash
 cd ./observable-framework-cpi-example
 ```
+
+## Load the data with Python
+
+We're going to use Python to load the data we need for our dashboard. We'll use the [`cpi`](https://palewi.re/docs/cpi/) library to get the Consumer Price Index data we need. It will be installed in a virtual environment with `pipenv`, along with the [`pandas`](https://pandas.pydata.org/) library for data manipulation.
 
 ```bash
 pipenv install pandas cpi
 ```
 
+Now you have all the dependencies you need. In your terminal start up the Observable test serve inside the Python environment.
+
+```bash
+pipenv run npm run dev
+```
+
+That will start a local server at `http://localhost:3000/` where you can see your project take shape as you add code.
+
 Create a data loader for our first chart in `src/month-to-month.py`:
 
 ```python
+# Import the system module so we can write the data to stdout, a technique recommended by Observable
 import sys
 
+# Import the cpi module so we can get the data we need
 import cpi
 
-# Get the standard CPI-U series, seasonally adjusted
+# Get the standard CPI-U series, seasonally adjusted, so we can compare it month-to-month
 df = cpi.series.get(seasonally_adjusted=True).to_dataframe()
 
-# Filter it down to monthly values
+# Filter it down to monthly values, excluding annual averages
 df = df[df.period_type == "monthly"].copy()
 
-# Sort it by date
+# Sort it by date so we can calculate the percentage change
 df = df.sort_values("date")
 
-# Cut it down to the last 13 months, plus one
+# Cut it down to the last 13 months, plus one, so we can cover the same time range as the BLS's PDF chart
 df = df.tail(13 + 1)
 
 # Calculate the percentage change and round it to one decimal place, as the BLS does
 df["change"] = (df.value.pct_change() * 100).round(1)
 
-# Drop the first value
+# Drop the first value, which is the 14th month we only needed for the calculation
 df = df.iloc[1:]
 
-# Output the results
+# Output the results to stdout in JSON format
 df.to_json(sys.stdout, orient="records", date_format="iso")
 ```
 
-Load it into our project in `src/index.md` with a fenced js block.
+Now open up the `src/index.md` that lays out your page. Clear out everything there and load the data inside a fenced JavaScript code block:
 
-```js
+``````js
+```foo
 const monthToMonth = await FileAttachment("month-to-month.json").json({typed: true}).then(data => {
   return data.map(d => {
     return {
@@ -76,6 +105,7 @@ const monthToMonth = await FileAttachment("month-to-month.json").json({typed: tr
   });
 });
 ```
+``````
 
 Use Observable Plot to add a simple bar chart that roughly matches what the BLS puts out.
 
