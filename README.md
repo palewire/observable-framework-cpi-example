@@ -223,7 +223,7 @@ name: "Build and Deploy"
 on:
   workflow_dispatch:
   schedule:
-    - cron: '* * * * *'
+    - cron: '0 0 * * *'
 
 jobs:
   build:
