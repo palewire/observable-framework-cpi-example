@@ -1,3 +1,9 @@
+_This page is a demonstration of how to deploy an [Observable Framework](https://observablehq.com/framework) dashboard via GitHub Pages.
+
+It recreates the main elements of the [latest PDF press release](https://www.bls.gov/news.release/pdf/cpi.pdf) of Consumer Price Index (CPI) data issued by the U.S. Bureau of Labor Statistics.
+
+All of the code is available at [github.com/palewire/observable-framework-cpi-example](https://github.com/palewire/observable-framework-cpi-example), where you can find a step-by-step guide you can follow to create your own dashboard._
+
 # Observable Framework CPI Example
 
 An example of how to deploy an [Observable Framework](https://observablehq.com/framework) dashboard via GitHub Pages
@@ -132,38 +138,33 @@ import sys
 import cpi
 import pandas as pd
 
+def get_dataframe(**kwargs):
+    # Get the data the user asks for
+    df = cpi.series.get(**kwargs).to_dataframe()
+    
+    # Filter it down to monthly values
+    df = df[df.period_type == "monthly"].copy()
+
+    # Sort it by date
+    df = df.sort_values("date")
+
+    # Get the 12 month percent change
+    df["change"] = df.value.pct_change(12) * 100
+
+    # Slice it down to the last 13 months
+    df = df.tail(13)
+
+    # Return it
+    return df
+
 # Get the standard CPI-U series, but not seasonally adjusted
-all_df = cpi.series.get(seasonally_adjusted=False).to_dataframe()
-
-# Filter it down to monthly values
-all_df = all_df[all_df.period_type == "monthly"].copy()
-
-# Sort it by date
-all_df = all_df.sort_values("date")
-
-# Get the 12 month percent change
-all_df["change"] = all_df.value.pct_change(12) * 100
-
-# Slice it down to the last 13 months
-all_df = all_df.tail(13)
+all_df = get_dataframe(seasonally_adjusted=False)
 
 # Get the same series but for the 'core' CPI, which excludes food and energy
-core_df = cpi.series.get(
+core_df = get_dataframe(
     items="All items less food and energy",
     seasonally_adjusted=False
-).to_dataframe()
-
-# Filter it down to monthly values
-core_df = core_df[core_df.period_type == "monthly"].copy()
-
-# Sort it by date
-core_df = core_df.sort_values("date")
-
-# Get the 12 month percent change
-core_df["change"] = core_df.value.pct_change(12) * 100
-
-# Slice it down to the last 13 months
-core_df = core_df.tail(13)
+)
 
 # Concatenate the two series
 df = pd.concat([all_df, core_df])

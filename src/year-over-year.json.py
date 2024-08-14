@@ -34,7 +34,7 @@ core_df = get_dataframe(
 # Concatenate the two series
 df = pd.concat([all_df, core_df])
 
-# Round the percentage change to two decimal places
+# Round the percentage change to one decimal place
 df["change"] = df["change"].round(1)
 
 # Output the results
