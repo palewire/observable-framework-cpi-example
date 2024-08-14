@@ -86,5 +86,3 @@ Plot.plot({
   y: {label: "Percent Change", tickFormat: d => `${d}%`, grid: true}
 })
 ```
-
-```js

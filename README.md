@@ -4,7 +4,7 @@ A demonstration of how to deploy an [Observable Framework](https://observablehq.
 
 It recreates the main elements of the [latest press release](https://www.bls.gov/news.release/pdf/cpi.pdf) of Consumer Price Index data issued by the U.S. Bureau of Labor Statistics. You can see the published page at [palewire.github.io/observable-framework-cpi-example/](https://palewire.github.io/observable-framework-cpi-example/).
 
-Follow the tutorial below to learn how it was created, and how you can publish a dashboard of your own.
+Follow the brief tutorial below to learn how it was created, and how you can publish a dashboard of your own.
 
 ## Table of Contents
 
@@ -142,7 +142,7 @@ Plot.plot({
 
 ## Template the data into text
 
-Pull out the last values from the data into another fenced code block:
+Pull out the last record from the data array into another fenced code block:
 
 ``````md
 ```js
@@ -150,7 +150,7 @@ const latest = monthToMonth.at(-1);
 ```
 ``````
 
-Fit it into a headline that matches the BLS press release:
+Fit it into a headline that matches the BLS press release using a [template literal](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals) and [d3's formatting tool](https://d3js.org/d3-time-format):
 
 ```md
 # Consumer Price Index – ${d3.utcFormat("%B %Y")(latest.month)}
@@ -200,7 +200,7 @@ adjusted basis, after it ${describe(previous.change)} in ${d3.utcFormat("%B")(pr
 
 ## Once more, with feeling
 
-To get a little more practice, let's add a second chart that shows the year-over-year change in the Consumer Price Index. That's what the media is referring to when they talk about inflation.
+To get a little more practice, let's add a second chart that shows the year-over-year change in the Consumer Price Index. That's what the media is referring to when they talk about the inflation rate.
 
 Create a new Python file at `src/year-over-year.py` where we'll calculate the statistics we need:
 
@@ -235,6 +235,8 @@ def get_dataframe(**kwargs):
 all_df = get_dataframe(seasonally_adjusted=False)
 
 # Get the same series but for the 'core' CPI, which excludes food and energy
+# This series has historically been less volatile than the overall index, 
+# so some experts see it as a better measure of inflation.
 core_df = get_dataframe(
     items="All items less food and energy",
     seasonally_adjusted=False
@@ -302,7 +304,7 @@ Fit that into a similar sentence to the first chart:
 Over the last 12 months, the all items index ${describe(latestAllItems.change)} before seasonal adjustment. The index for all items less food and energy ${describe(latestCore.change)}.
 ```
 
-Boom. You've got a dashboard that's ready to deploy.
+Boom. You've got a simple dashboard that's ready to deploy.
 
 ## Deploy with GitHub Pages
 
@@ -386,7 +388,7 @@ Next add a step at the bottom to deploy the release candidate:
         uses: actions/deploy-pages@v4
 ```
 
-Commit all of your work with git. Go to GitHub and create a new repository. Push your work to the repository.
+Commit all of your work with git. Go to GitHub and create a new repository. Link it to your local repository. Push your work to GitHub.
 
 Visit your repository's settings page. Click on the "Pages" tab. Select "GitHub Actions" from the Build and Deployment section's source dropdown. This will enable GitHub Pages for your repository.
 
@@ -397,3 +399,5 @@ A job should start soon after. Once it completes, your project should soon be av
 In this case, my project is available at [palewire.github.io/observable-framework-cpi-example/](https://palewire.github.io/observable-framework-cpi-example/).
 
 That's it! You've deployed an Observable Framework dashboard via GitHub Pages. 🎉
+
+If you want to see the finished code in one place, check out the files in this repository's `src` directory.
