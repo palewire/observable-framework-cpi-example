@@ -270,19 +270,12 @@ jobs:
 
       - id: upload-release-candidate
         name: Upload release candidate
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-pages-artifact@v1
         with:
-          name: release-candidate
-          path: ./dist
+          path: "dist"
 ```
 
 Visit your repository's settings page. Click on the "Pages" tab. Select "GitHub Actions" from the Build and Deployment section's source dropdown.
-
-Add the permissions to deploy to GitHub Pages near the top of your workflow file:
-
-```yaml
-permissions: write-all
-```
 
 Add a step to deploy the release candidate below the build step:
 
@@ -291,19 +284,13 @@ Add a step to deploy the release candidate below the build step:
     name: Deploy
     runs-on: ubuntu-latest
     needs: build
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
     steps:
-      - id: download-release-candidate
-        name: Download release candidate
-        uses: actions/download-artifact@v4
-        with:
-          name: release-candidate
-
-      - id: upload-pages
-        name: Upload pages
-        uses: actions/upload-artifact@v3
-        with:
-          path: ./
-
       - id: deploy
         name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v4
