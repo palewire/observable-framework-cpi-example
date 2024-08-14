@@ -1,6 +1,6 @@
 # Observable Framework CPI Example
 
-This is an example of [Observable Framework](https://observablehq.com/framework) project. 
+An example of how to deploy an [Observable Framework](https://observablehq.com/framework) dashboard via GitHub Pages
 
 ```bash
 npx @observablehq/framework@latest create
