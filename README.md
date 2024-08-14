@@ -270,14 +270,12 @@ jobs:
 
       - id: upload-release-candidate
         name: Upload release candidate
-        uses: actions/upload-pages-artifact@v1
+        uses: actions/upload-pages-artifact@v3
         with:
           path: "dist"
 ```
 
-Visit your repository's settings page. Click on the "Pages" tab. Select "GitHub Actions" from the Build and Deployment section's source dropdown.
-
-Add a step to deploy the release candidate below the build step:
+Next add a step to deploy the release candidate below the build step:
 
 ```yaml
   deploy:
@@ -295,6 +293,8 @@ Add a step to deploy the release candidate below the build step:
         name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v4
 ```
+
+Visit your repository's settings page. Click on the "Pages" tab. Select "GitHub Actions" from the Build and Deployment section's source dropdown.
 
 Visit your repository's Actions tab. Click on the "Build and Deploy" workflow on the left-hand side. Click the "Run workflow" dropdown on the left-hand side. Click the green "Run workflow" button that appears.
 

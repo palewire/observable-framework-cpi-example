@@ -5,7 +5,7 @@ name = "pypi"
 
 [packages]
 pandas = "*"
-cpi = "*"
+cpi = ">=0.1.18"
 
 [dev-packages]
 

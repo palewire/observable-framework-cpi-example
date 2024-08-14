@@ -3,38 +3,33 @@ import sys
 import cpi
 import pandas as pd
 
+def get_dataframe(**kwargs):
+    # Get the data the user asks for
+    df = cpi.series.get(**kwargs).to_dataframe()
+    
+    # Filter it down to monthly values
+    df = df[df.period_type == "monthly"].copy()
+
+    # Sort it by date
+    df = df.sort_values("date")
+
+    # Get the 12 month percent change
+    df["change"] = df.value.pct_change(12) * 100
+
+    # Slice it down to the last 13 months
+    df = df.tail(13)
+
+    # Return it
+    return df
+
 # Get the standard CPI-U series, but not seasonally adjusted
-all_df = cpi.series.get(seasonally_adjusted=False).to_dataframe()
-
-# Filter it down to monthly values
-all_df = all_df[all_df.period_type == "monthly"].copy()
-
-# Sort it by date
-all_df = all_df.sort_values("date")
-
-# Get the 12 month percent change
-all_df["change"] = all_df.value.pct_change(12) * 100
-
-# Slice it down to the last 13 months
-all_df = all_df.tail(13)
+all_df = get_dataframe(seasonally_adjusted=False)
 
 # Get the same series but for the 'core' CPI, which excludes food and energy
-core_df = cpi.series.get(
+core_df = get_dataframe(
     items="All items less food and energy",
     seasonally_adjusted=False
-).to_dataframe()
-
-# Filter it down to monthly values
-core_df = core_df[core_df.period_type == "monthly"].copy()
-
-# Sort it by date
-core_df = core_df.sort_values("date")
-
-# Get the 12 month percent change
-core_df["change"] = core_df.value.pct_change(12) * 100
-
-# Slice it down to the last 13 months
-core_df = core_df.tail(13)
+)
 
 # Concatenate the two series
 df = pd.concat([all_df, core_df])
