@@ -6,6 +6,16 @@ It recreates the main elements of the [latest press release](https://www.bls.gov
 
 Follow the tutorial below to learn how it was created, and how you can publish a dashboard of your own.
 
+## Table of Contents
+
+* [Requirements](#requirements)
+* [Create a new project](#create-a-new-project)
+* [Load data with Python](#load-data-with-python)
+* [Create a chart](#create-a-chart)
+* [Template the data into text](#template-the-data-into-text)
+* [Once more, with feeling](#once-more-with-feeling)
+* [Deploying with GitHub Pages](#deploying-with-github-pages)
+
 ## Requirements
 
 * [Node.js](https://nodejs.org/en/)
@@ -45,7 +55,7 @@ Navigate into the project directory that was created:
 cd ./observable-framework-cpi-example
 ```
 
-## Load the data with Python
+## Load data with Python
 
 We're going to use Python to load the data we need for our dashboard. We'll use the [`cpi`](https://palewi.re/docs/cpi/) library to get the Consumer Price Index data we need. It will be installed in a virtual environment with `pipenv`, along with the [`pandas`](https://pandas.pydata.org/) library for data manipulation.
 
@@ -92,6 +102,8 @@ df = df.iloc[1:]
 df.to_json(sys.stdout, orient="records", date_format="iso")
 ```
 
+## Create a chart
+
 Now open up the `src/index.md` that lays out your page. Clear out everything there and load the data inside a fenced JavaScript code block:
 
 ``````md
@@ -107,8 +119,9 @@ const monthToMonth = await FileAttachment("month-to-month.json").json({typed: tr
 ```
 ``````
 
-Use Observable Plot to add a simple bar chart that roughly matches what the BLS puts out.
+Use [Observable Plot](https://observablehq.com/plot/) to add a simple bar chart that roughly matches what the BLS puts out. If your test serve is running, it should appear on the page soon after you save.
 
+``````md
 ```js
 Plot.plot({
   title: "One-month percent change in CPI for All Urban Consumers (CPI-U), seasonally adjusted",
@@ -124,48 +137,80 @@ Plot.plot({
   y: {label: "Percent Change", tickFormat: d => `${d}%`}
 })
 ```
+````
 
+## Template the data into text
+
+Pull out the last values from the data into another fenced code block:
+
+``````md
 ```js
 const latest = monthToMonth.at(-1);
 ```
+``````
 
-```js
+Fit it into a headline that matches the BLS press release:
+
+```md
 # Consumer Price Index – ${d3.utcFormat("%B %Y")(latest.month)}
 ```
 
+To compare it with the previous month, add another line of code that pulls out the previous month's value.
+
+``````md
 ```js
 const latest = monthToMonth.at(-1);
 const previous = monthToMonth.at(-2);
 ```
+``````
 
-```js
+Now fit that into the same sentence the BLS uses to lead its press release:
+
+```md
 The Consumer Price Index for All Urban Consumers (CPI-U) changed ${latest.change} percent on a seasonally
 adjusted basis, after changing ${previous.change} percent in ${d3.utcFormat("%B")(previous.month)}, the U.S. Bureau of Labor Statistics reported today.
 ```
 
+Get more descriptive with the changes by adding a function that describes them:
+
+``````md
 ```js
+const latest = monthToMonth.at(-1);
+const previous = monthToMonth.at(-2);
+
 const describe = (change) => {
   if (change > 0) {
     return `rose ${change} percent`;
   } else if (change < 0) {
     return `fell ${Math.abs(change)} percent`;
   } else {
-    return "staying unchanged";
+    return "stayed unchanged";
   }
 }
 ```
+``````
 
-```js
+Which can be put to use by editing the sentence to read:
+
+```md
 The Consumer Price Index for All Urban Consumers (CPI-U) ${describe(latest.change)} on a seasonally
-adjusted basis, after ${describe(previous.change)} in ${d3.utcFormat("%B")(previous.month)}, the U.S. Bureau of Labor Statistics reported today.
+adjusted basis, after it ${describe(previous.change)} in ${d3.utcFormat("%B")(previous.month)}, the U.S. Bureau of Labor Statistics reported today.
 ```
+
+## Once more, with feeling
+
+To get a little more practice, let's add a second chart that shows the year-over-year change in the Consumer Price Index. That's what the media is referring to when they talk about inflation.
+
+Create a new Python file at `src/year-over-year.py` where we'll calculate the statistics we need:
 
 ```python
 import sys
 
 import cpi
-import pandas as pd
+import pandas as pd  # This time we'll need to import pandas
 
+
+# Define a function that does the math ...
 def get_dataframe(**kwargs):
     # Get the data the user asks for
     df = cpi.series.get(**kwargs).to_dataframe()
@@ -185,7 +230,7 @@ def get_dataframe(**kwargs):
     # Return it
     return df
 
-# Get the standard CPI-U series, but not seasonally adjusted
+# Using our function to get the standard CPI-U series, but not seasonally adjusted
 all_df = get_dataframe(seasonally_adjusted=False)
 
 # Get the same series but for the 'core' CPI, which excludes food and energy
@@ -204,7 +249,9 @@ df["change"] = df["change"].round(1)
 df.to_json(sys.stdout, orient="records", date_format="iso")
 ```
 
+Now go back to `src/index.md` and load the new data:
 
+``````md
 ```js
 const yearOverYear = await FileAttachment("year-over-year.json").json({typed: true}).then(data => {
   return data.map(d => {
@@ -216,7 +263,11 @@ const yearOverYear = await FileAttachment("year-over-year.json").json({typed: tr
   });
 });
 ```
+``````
 
+Add another Plot with each of our two data series as a line on the same chart:
+
+``````md
 ```js
 Plot.plot({
   title: " 12-month percent change in CPI for All Urban Consumers (CPI-U), not seasonally adjusted",
@@ -233,17 +284,28 @@ Plot.plot({
   y: {label: "Percent Change", tickFormat: d => `${d}%`, grid: true}
 })
 ```
+``````
 
+Pull out the latest value for each series:
+
+``````md
 ```js
 const latestAllItems = yearOverYear.filter(d => d.series_items_name === "All items").at(-1);
 const latestCore = yearOverYear.filter(d => d.series_items_name === "All items less food and energy").at(-1);
 ```
+``````
 
-```js
+Fit that into a similar sentence to the first chart:
+
+```md
 Over the last 12 months, the all items index ${describe(latestAllItems.change)} before seasonal adjustment. The index for all items less food and energy ${describe(latestCore.change)}.
 ```
 
-Create a GitHub Actions workflow file in `.github/workflows/deploy.yaml`:
+Boom. You've got a dashboard that's ready to deploy.
+
+## Deploying with GitHub Pages
+
+Create a [GitHub Actions](https://docs.github.com/en/actions/about-github-actions/understanding-github-actions) workflow file in `.github/workflows/deploy.yaml`. Start by adding a step to build the project once a day:
 
 ```yaml
 name: "Build and Deploy"
@@ -304,7 +366,7 @@ jobs:
           path: "dist"
 ```
 
-Next add a step to deploy the release candidate below the build step:
+Next add a step at the bottom to deploy the release candidate:
 
 ```yaml
   deploy:
@@ -323,10 +385,14 @@ Next add a step to deploy the release candidate below the build step:
         uses: actions/deploy-pages@v4
 ```
 
-Visit your repository's settings page. Click on the "Pages" tab. Select "GitHub Actions" from the Build and Deployment section's source dropdown.
+Commit all of your work with git. Go to GitHub and create a new repository. Push your work to the repository.
+
+Visit your repository's settings page. Click on the "Pages" tab. Select "GitHub Actions" from the Build and Deployment section's source dropdown. This will enable GitHub Pages for your repository.
 
 Visit your repository's Actions tab. Click on the "Build and Deploy" workflow on the left-hand side. Click the "Run workflow" dropdown on the left-hand side. Click the green "Run workflow" button that appears.
 
-A job should start soon after. Once it completes, your project should soon be available at `https://<username>.github.io/<repository>`.
+A job should start soon after. Once it completes, your project should soon be available at `https://<username>.github.io/<repository-name>`.
 
 In this case, my project is available at [palewire.github.io/observable-framework-cpi-example/](https://palewire.github.io/observable-framework-cpi-example/).
+
+That's it! You've deployed an Observable Framework dashboard via GitHub Pages. 🎉
