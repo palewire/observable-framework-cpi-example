@@ -278,4 +278,39 @@ jobs:
 
 Visit your repository's settings page. Click on the "Pages" tab. Select "GitHub Actions" from the Build and Deployment section's source dropdown.
 
+Add the permissions to deploy to GitHub Pages near the top of your workflow file:
 
+```yaml
+permissions: write-all
+```
+
+Add a step to deploy the release candidate below the build step:
+
+```yaml
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - id: download-release-candidate
+        name: Download release candidate
+        uses: actions/download-artifact@v4
+        with:
+          name: release-candidate
+
+      - id: upload-pages
+        name: Upload pages
+        uses: actions/upload-artifact@v3
+        with:
+          path: ./
+
+      - id: deploy
+        name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4
+```
+
+Visit your repository's Actions tab. Click on the "Build and Deploy" workflow on the left-hand side. Click the "Run workflow" dropdown on the left-hand side. Click the green "Run workflow" button that appears.
+
+A job should start soon after. Once it completes, your project should soon be available at `https://<username>.github.io/<repository>`.
+
+In this case, my project is available at [palewire.github.io/observable-framework-cpi-example/](https://palewire.github.io/observable-framework-cpi-example/).
