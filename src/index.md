@@ -31,7 +31,7 @@ const describe = (change) => {
   } else if (change < 0) {
     return `fell ${Math.abs(change)} percent`;
   } else {
-    return "staying unchanged";
+    return "stayed unchanged";
   }
 }
 ```
@@ -39,7 +39,7 @@ const describe = (change) => {
 # Consumer Price Index – ${d3.utcFormat("%B %Y")(latest.month)}
 
 The Consumer Price Index for All Urban Consumers (CPI-U) ${describe(latest.change)} on a seasonally
-adjusted basis, after ${describe(previous.change)} in ${d3.utcFormat("%B")(previous.month)}, the U.S. Bureau of Labor Statistics reported today.
+adjusted basis, after it ${describe(previous.change)} in ${d3.utcFormat("%B")(previous.month)}, the U.S. Bureau of Labor Statistics reported today.
 
 ```js
 Plot.plot({
