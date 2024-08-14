@@ -94,8 +94,8 @@ df.to_json(sys.stdout, orient="records", date_format="iso")
 
 Now open up the `src/index.md` that lays out your page. Clear out everything there and load the data inside a fenced JavaScript code block:
 
-``````js
-```foo
+``````md
+```js
 const monthToMonth = await FileAttachment("month-to-month.json").json({typed: true}).then(data => {
   return data.map(d => {
     return {
