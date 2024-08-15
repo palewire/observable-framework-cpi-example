@@ -71,7 +71,7 @@ pipenv run npm run dev
 
 That will start a local server at `http://localhost:3000/` where you can see your project take shape as you add code.
 
-Create a data loader for our first chart in `src/month-to-month.py`:
+Create a data loader for our first chart in `src/month-to-month.json.py`:
 
 ```python
 # Import the system module so we can write the data to stdout, a technique recommended by Observable
@@ -202,7 +202,7 @@ adjusted basis, after it ${describe(previous.change)} in ${d3.utcFormat("%B")(pr
 
 To get a little more practice, let's add a second chart that shows the year-over-year change in the Consumer Price Index. That's what the media is referring to when they talk about the inflation rate.
 
-Create a new Python file at `src/year-over-year.py` where we'll calculate the statistics we need:
+Create a new Python file at `src/year-over-year.json.py` where we'll calculate the statistics we need:
 
 ```python
 import sys
