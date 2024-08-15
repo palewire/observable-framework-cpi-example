@@ -2,7 +2,7 @@ _This page is a demonstration of how to deploy an [Observable Framework](https:/
 
 _It recreates the main elements of the latest Consumer Price Index [press release](https://www.bls.gov/news.release/pdf/cpi.pdf) issued by the U.S. Bureau of Labor Statistics._
 
-_All of the code is available at [github.com/palewire/observable-framework-cpi-example](https://github.com/palewire/observable-framework-cpi-example), where you can find a step-by-step guide you can follow to create your own dashboard._
+_All of the code is available at [github.com/palewire/observable-framework-cpi-example](https://github.com/palewire/observable-framework-cpi-example), where a step-by-step guide shows how you can create your own dashboard._
 
 ```js
 const monthToMonth = await FileAttachment("month-to-month.json").json({typed: true}).then(data => {
