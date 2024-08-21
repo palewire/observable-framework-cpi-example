@@ -4,6 +4,8 @@ A demonstration of how to deploy an [Observable Framework](https://observablehq.
 
 It recreates the main elements of the latest Consumer Price Index [press release](https://www.bls.gov/news.release/pdf/cpi.pdf) issued by the U.S. Bureau of Labor Statistics. You can see the published page at [palewire.github.io/observable-framework-cpi-example/](https://palewire.github.io/observable-framework-cpi-example/).
 
+![Screenshot of the dashboard](https://raw.githubusercontent.com/palewire/observable-framework-cpi-example/main/screenshot.png)
+
 Follow the brief tutorial below to learn how it was created, and how you can publish a dashboard of your own.
 
 ## Table of Contents
